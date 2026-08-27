@@ -4,28 +4,33 @@ menu "Hidroponik WiFi Configuration"
         string "SSID WiFi rumah (STA)"
         default ""
         help
-            SSID WiFi yang mau dikonek pas boot. Kalau kosong/gagal connect dalam
-            WIFI_STA_CONNECT_TIMEOUT_SEC detik, device otomatis fallback ke AP mode.
+            SSID WiFi yang mau dikonek pas boot. WiFi jalan mode APSTA: AP hotspot
+            selalu aktif dari awal, STA nyoba connect ke SSID ini dan tetap retry
+            terus-menerus di background kalau gagal/putus (nggak exclusive sama AP).
 
     config WIFI_STA_PASSWORD
         string "Password WiFi rumah (STA)"
         default ""
 
     config WIFI_STA_CONNECT_TIMEOUT_SEC
-        int "Timeout connect STA (detik)"
+        int "Timeout tunggu STA connect pas boot (detik)"
         default 15
         range 5 120
+        help
+            Cuma nentuin berapa lama app_main() nunggu di boot sebelum lanjut init
+            komponen lain. STA tetap terus retry di background walau timeout ini
+            udah lewat -- begitu WiFi rumah kedeteksi, MQTT/Firebase otomatis aktif.
 
     config WIFI_AP_SSID
-        string "SSID fallback AP (hotspot lokal)"
+        string "SSID AP (hotspot lokal, aktif terus)"
         default "Hidroponik-AP"
 
     config WIFI_AP_PASSWORD
-        string "Password fallback AP (kosongkan buat AP open, min 8 char kalau diisi)"
+        string "Password AP (kosongkan buat AP open, min 8 char kalau diisi)"
         default "hidroponik123"
 
     config WIFI_AP_CHANNEL
-        int "Channel fallback AP"
+        int "Channel AP"
         range 1 13
         default 6
 

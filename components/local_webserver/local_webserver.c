@@ -20,7 +20,7 @@ static const char INDEX_HTML[] =
 ".value{font-size:1.8rem;font-weight:600;margin-top:4px}"
 ".stale{color:#f87171;font-size:.75rem;margin-top:8px}"
 "</style></head><body>"
-"<h1>Hidroponik Monitor (AP mode)</h1>"
+"<h1>Hidroponik Monitor</h1>"
 "<div class=\"grid\">"
 "<div class=\"card\"><div class=\"label\">Suhu Air</div><div class=\"value\" id=\"water_temp_c\">--</div></div>"
 "<div class=\"card\"><div class=\"label\">Suhu Udara</div><div class=\"value\" id=\"air_temp_c\">--</div></div>"
@@ -91,6 +91,6 @@ esp_err_t local_webserver_start(void)
     };
     httpd_register_uri_handler(server, &api_uri);
 
-    ESP_LOGI(TAG, "local webserver siap di http://192.168.4.1/");
+    ESP_LOGI(TAG, "local webserver siap di http://192.168.4.1/ (AP) atau IP STA kalau lagi connect ke WiFi rumah");
     return ESP_OK;
 }

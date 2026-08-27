@@ -1,19 +1,26 @@
 #pragma once
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef enum {
-    WIFI_MANAGER_MODE_STA = 0,  // konek ke WiFi rumah, MQTT+Firebase aktif
-    WIFI_MANAGER_MODE_AP,       // fallback hotspot lokal, local_webserver aktif
-} wifi_manager_mode_t;
+// Nyalain WiFi APSTA (STA + AP bareng, nggak exclusive):
+//   - AP (hotspot lokal, CONFIG_WIFI_AP_SSID) selalu aktif dari awal boot,
+//     dashboard local_webserver bisa diakses lewat situ kapan pun.
+//   - STA nyoba connect ke CONFIG_WIFI_STA_SSID, tetap terus retry di background
+//     kalau gagal/putus (nggak pernah nyerah), biar otomatis reconnect begitu
+//     WiFi rumah balik lagi -- MQTT/Firebase otomatis lanjut begitu STA connect.
+//
+// Blocking cuma buat percobaan pertama (CONFIG_WIFI_STA_CONNECT_TIMEOUT_SEC),
+// sekadar buat tau status awal pas boot. Return true kalau STA berhasil connect
+// dalam timeout itu, false kalau belum (tapi tetap lanjut retry di background).
+bool wifi_manager_init(void);
 
-// Blocking: coba connect ke WiFi tersimpan (STA) sampai CONFIG_WIFI_STA_CONNECT_TIMEOUT_SEC.
-// Kalau berhasil, sekalian sync waktu via SNTP lalu return WIFI_MANAGER_MODE_STA.
-// Kalau gagal/timeout, otomatis switch ke SoftAP pakai kredensial fallback dan
-// return WIFI_MANAGER_MODE_AP.
-wifi_manager_mode_t wifi_manager_init(void);
+// Status live STA saat ini (bisa berubah kapan aja karena reconnect di background).
+// Dipakai buat mutusin apa publish MQTT/Firebase sekarang, bukan cuma snapshot boot.
+bool wifi_manager_is_sta_connected(void);
 
 #ifdef __cplusplus
 }

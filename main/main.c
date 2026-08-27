@@ -17,8 +17,6 @@
 
 static const char *TAG = "main";
 
-static wifi_manager_mode_t s_wifi_mode;
-
 static void sensor_task(void *arg)
 {
     int reads_since_last_push = 0;
@@ -63,7 +61,7 @@ static void sensor_task(void *arg)
         reading.timestamp = time(NULL);
         sensor_hub_update(&reading);
 
-        if (s_wifi_mode == WIFI_MANAGER_MODE_STA) {
+        if (wifi_manager_is_sta_connected()) {
             char *json = sensor_hub_get_json();
             if (json != NULL) {
                 mqtt_client_app_publish(json);
@@ -92,8 +90,9 @@ void app_main(void)
 
     ESP_ERROR_CHECK(sensor_hub_init());
 
-    s_wifi_mode = wifi_manager_init();
-    ESP_LOGI(TAG, "wifi mode aktif: %s", s_wifi_mode == WIFI_MANAGER_MODE_STA ? "STA" : "AP");
+    bool sta_connected_at_boot = wifi_manager_init();
+    ESP_LOGI(TAG, "STA %s pas boot (AP tetap aktif terus)",
+             sta_connected_at_boot ? "berhasil connect" : "belum connect, lanjut retry di background");
 
     if (sensor_ds18b20_init((gpio_num_t) CONFIG_SENSOR_DS18B20_GPIO) != ESP_OK) {
         ESP_LOGW(TAG, "DS18B20 nggak kedeteksi di GPIO%d, lanjut tanpa suhu air", CONFIG_SENSOR_DS18B20_GPIO);
@@ -102,11 +101,10 @@ void app_main(void)
     sensor_ph_init();
     sensor_tds_init();
 
-    if (s_wifi_mode == WIFI_MANAGER_MODE_STA) {
-        mqtt_client_app_start();
-    } else {
-        local_webserver_start();
-    }
+    // AP + local_webserver selalu aktif, MQTT jalan bareng begitu STA connect
+    // (esp-mqtt auto-reconnect sendiri kalau STA belum/putus koneksi).
+    local_webserver_start();
+    mqtt_client_app_start();
 
     xTaskCreate(sensor_task, "sensor_task", 4096, NULL, 5, NULL);
 }

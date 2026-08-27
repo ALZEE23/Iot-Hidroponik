@@ -48,37 +48,42 @@ Strapping pins yang **dihindari**: IO0, IO2, IO12, IO15 (dipakai buat boot mode 
 
 ## 2. Konektivitas
 
-ESP32 punya 2 mode dengan **fallback otomatis**:
+ESP32 jalan mode **WiFi APSTA (STA + AP bareng, bukan exclusive fallback)**:
 
 ```
-        ESP32 Boot
-             │
-             ▼
-   Coba connect WiFi tersimpan (STA mode)
-   timeout ~15 detik
-             │
-      ┌──────┴──────┐
-   Berhasil       Gagal/timeout
-      │              │
-      ▼              ▼
-  STA MODE        AP MODE (Hotspot)
-  │                │
-  ├─ MQTT publish  └─ Local HTTP server
-  │  ke HiveMQ         (HP/laptop konek langsung
-  │  Cloud (TLS)        ke hotspot ESP32, buka
-  │                     dashboard lokal)
-  └─ HTTPS PUT ke
-     Firebase RTDB
-     (histori data)
+                    ESP32 Boot
+                         │
+                         ▼
+        WIFI_MODE_APSTA nyala bareng dari awal
+                         │
+          ┌──────────────┴──────────────┐
+          ▼                              ▼
+     AP (Hotspot)                   STA (WiFi rumah)
+     selalu aktif                   connect + auto-retry
+          │                         terus di background
+          ▼                              │
+   Local HTTP server              ┌───────┴────────┐
+   (dashboard, diakses           STA connected     STA belum/putus
+   lewat hotspot ESP32               │                   │
+   ATAU lewat IP STA kalau            ▼                   ▼
+   HP/laptop di WiFi yang sama)  MQTT publish      cuma dashboard lokal
+                                  ke HiveMQ Cloud   yang jalan, MQTT/Firebase
+                                  + HTTPS PUT ke    auto-lanjut begitu STA
+                                  Firebase RTDB     connect lagi
 ```
 
-- **MQTT → HiveMQ Cloud** (free tier): real-time push data sensor ke dashboard.
-  Dipakai kalau ESP32 online (STA mode).
-- **Firebase Realtime Database**: nyimpen histori data via HTTPS REST API.
-  Rules dibuat terbuka (`.read`/`.write`: true) — cukup untuk project hobi, bukan production.
-- **AP mode (hotspot)**: fallback kalau nggak ada WiFi/internet (misal di greenhouse
-  tanpa jaringan). ESP32 jalanin local HTTP server sendiri, device lain connect
-  langsung ke hotspot-nya untuk lihat data live.
+- **MQTT → HiveMQ Cloud** (free tier): real-time push data sensor, aktif kapan pun
+  STA lagi connect (dicek live tiap siklus baca sensor, bukan cuma status pas boot).
+- **Firebase Realtime Database**: nyimpen histori data via HTTPS REST API, sama
+  kayak MQTT cuma jalan kalau STA connect. Rules dibuat terbuka (`.read`/`.write`: true)
+  — cukup untuk project hobi, bukan production.
+- **AP (hotspot) selalu aktif**, bukan cuma fallback — dashboard lokal (`local_webserver`)
+  bisa diakses kapan pun lewat hotspot ESP32 (`http://192.168.4.1/`), atau lewat IP STA-nya
+  kalau device yang lihat kebetulan di WiFi rumah yang sama (lebih rendah latensi,
+  nggak lewat round-trip cloud).
+- STA nggak pernah "nyerah" — kalau gagal/putus, terus retry connect di background;
+  MQTT (auto-reconnect bawaan esp-mqtt) & push Firebase otomatis aktif lagi begitu
+  STA berhasil connect, tanpa perlu reboot device.
 - WiFi credentials (SSID/password rumah), HiveMQ Cloud endpoint, dan Firebase
   Database URL disimpan lewat **Kconfig** (`idf.py menuconfig`), bukan hardcode.
 

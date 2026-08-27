@@ -1,0 +1,109 @@
+menu "Hidroponik WiFi Configuration"
+
+    config WIFI_STA_SSID
+        string "SSID WiFi rumah (STA)"
+        default ""
+        help
+            SSID WiFi yang mau dikonek pas boot. Kalau kosong/gagal connect dalam
+            WIFI_STA_CONNECT_TIMEOUT_SEC detik, device otomatis fallback ke AP mode.
+
+    config WIFI_STA_PASSWORD
+        string "Password WiFi rumah (STA)"
+        default ""
+
+    config WIFI_STA_CONNECT_TIMEOUT_SEC
+        int "Timeout connect STA (detik)"
+        default 15
+        range 5 120
+
+    config WIFI_AP_SSID
+        string "SSID fallback AP (hotspot lokal)"
+        default "Hidroponik-AP"
+
+    config WIFI_AP_PASSWORD
+        string "Password fallback AP (kosongkan buat AP open, min 8 char kalau diisi)"
+        default "hidroponik123"
+
+    config WIFI_AP_CHANNEL
+        int "Channel fallback AP"
+        range 1 13
+        default 6
+
+    config WIFI_AP_MAX_STA_CONN
+        int "Maksimal koneksi ke fallback AP"
+        default 4
+        range 1 15
+
+    config WIFI_SNTP_SERVER
+        string "SNTP server (sync waktu pas STA mode, buat timestamp histori Firebase)"
+        default "pool.ntp.org"
+
+endmenu
+
+menu "MQTT (HiveMQ Cloud)"
+
+    config MQTT_BROKER_HOST
+        string "Broker hostname"
+        default ""
+        help
+            Hostname cluster HiveMQ Cloud, misal xxxxxxxx.s1.eu.hivemq.cloud
+
+    config MQTT_BROKER_PORT
+        int "Broker port (TLS)"
+        default 8883
+
+    config MQTT_USERNAME
+        string "MQTT username"
+        default ""
+
+    config MQTT_PASSWORD
+        string "MQTT password"
+        default ""
+
+    config MQTT_TOPIC
+        string "Topic publish data sensor"
+        default "hidroponik/sensor"
+
+endmenu
+
+menu "Firebase Realtime Database"
+
+    config FIREBASE_DATABASE_HOST
+        string "Database host (tanpa https://, misal xxx-default-rtdb.asia-southeast1.firebasedatabase.app)"
+        default ""
+
+    config FIREBASE_PATH_PREFIX
+        string "Path prefix node data sensor di RTDB"
+        default "sensors"
+
+endmenu
+
+menu "Sensor Configuration"
+
+    config SENSOR_DS18B20_GPIO
+        int "GPIO DS18B20 (suhu air, 1-Wire)"
+        default 4
+
+    config SENSOR_DHT22_GPIO
+        int "GPIO DHT22 (suhu & kelembaban udara)"
+        default 5
+
+    config SENSOR_READ_INTERVAL_SEC
+        int "Interval baca semua sensor (detik)"
+        default 10
+        range 2 3600
+
+    config FIREBASE_PUSH_INTERVAL_READS
+        int "Push ke Firebase tiap N kali baca sensor (biar nggak spam request)"
+        default 6
+        range 1 360
+
+    config PH_NEUTRAL_MV
+        int "Tegangan pH netral dalam mV (WAJIB dikalibrasi pakai buffer solution pH 7)"
+        default 2500
+
+    config PH_MV_PER_PH
+        int "Slope tegangan per unit pH dalam mV/pH (WAJIB dikalibrasi pakai buffer pH 4 & 10)"
+        default 180
+
+endmenu

@@ -1,0 +1,15 @@
+# Non-default config yang dibutuhkan firmware hidroponik ini.
+# File ini dipakai ESP-IDF kalau `sdkconfig` di-generate ulang dari nol
+# (mis. hapus sdkconfig lalu `idf.py set-target esp32`). Untuk build yang
+# sudah ada sdkconfig-nya, opsi yang sama juga sudah di-set langsung di situ.
+
+# Certificate bundle bawaan ESP-IDF, dipakai esp_crt_bundle_attach() di
+# mqtt_client_app (TLS ke HiveMQ Cloud) & firebase_client (HTTPS ke Firebase RTDB).
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE=y
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE_DEFAULT_FULL=y
+
+# Partition table "single app" default (1MB) kekecilan buat binary ini (mbedTLS +
+# mqtt + http client + wifi + cJSON dorong ukuran app > 1MB). Pindah ke varian
+# "large" (~1.5MB app), masih muat di flash 2MB (CONFIG_ESPTOOLPY_FLASHSIZE_2MB).
+CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y
+CONFIG_PARTITION_TABLE_FILENAME="partitions_singleapp_large.csv"

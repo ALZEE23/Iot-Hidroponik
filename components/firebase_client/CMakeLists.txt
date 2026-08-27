@@ -1,0 +1,3 @@
+idf_component_register(SRCS "firebase_client.c"
+                    INCLUDE_DIRS "include"
+                    PRIV_REQUIRES esp_http_client mbedtls)

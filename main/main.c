@@ -61,6 +61,10 @@ static void sensor_task(void *arg)
         reading.timestamp = time(NULL);
         sensor_hub_update(&reading);
 
+        ESP_LOGI(TAG, "reading: water=%.2fC air=%.2fC/%.1f%% ph=%.2f tds=%.1fppm sta=%s",
+                 reading.water_temp_c, reading.air_temp_c, reading.air_humidity_pct,
+                 reading.ph, reading.tds_ppm, wifi_manager_is_sta_connected() ? "connected" : "disconnected");
+
         if (wifi_manager_is_sta_connected()) {
             char *json = sensor_hub_get_json();
             if (json != NULL) {

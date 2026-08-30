@@ -58,14 +58,20 @@ static esp_err_t dht22_read_once(float *temp_c, float *humidity_pct)
     }
 
     // --- 40 bit data ---
+    // Tiap bit: sync low ~50us (durasinya konstan, nggak dipakai buat nentuin nilai bit)
+    // diikuti pulsa high yang durasinya bervariasi -- itu yang nentuin 0/1.
     for (int bit = 0; bit < 40; bit++) {
         if (wait_for_level(0) < 0) {
-            ESP_LOGD(TAG, "timeout nunggu awal bit %d", bit);
+            ESP_LOGD(TAG, "timeout nunggu awal sync-low bit %d", bit);
             return ESP_ERR_TIMEOUT;
         }
-        int64_t high_us = wait_for_level(1);
+        if (wait_for_level(1) < 0) {
+            ESP_LOGD(TAG, "timeout nunggu sync-low selesai bit %d", bit);
+            return ESP_ERR_TIMEOUT;
+        }
+        int64_t high_us = wait_for_level(0);
         if (high_us < 0) {
-            ESP_LOGD(TAG, "timeout nunggu high bit %d", bit);
+            ESP_LOGD(TAG, "timeout nunggu pulsa high bit %d", bit);
             return ESP_ERR_TIMEOUT;
         }
         // pulsa high pendek (~26-28us) = bit 0, panjang (~70us) = bit 1
@@ -100,12 +106,14 @@ esp_err_t sensor_dht22_read(float *temp_c, float *humidity_pct)
     }
 
     esp_err_t err = ESP_FAIL;
-    for (int attempt = 0; attempt < 3; attempt++) {
+    for (int attempt = 0; attempt < 2; attempt++) {
         err = dht22_read_once(temp_c, humidity_pct);
         if (err == ESP_OK) {
             return ESP_OK;
         }
-        vTaskDelay(pdMS_TO_TICKS(50));
+        // DHT22 butuh minimal ~2 detik jeda sebelum siap direspons lagi (datasheet),
+        // jeda lebih pendek dari itu bakal selalu gagal di "response low" (sensor belum siap).
+        vTaskDelay(pdMS_TO_TICKS(2100));
     }
 
     ESP_LOGW(TAG, "gagal baca DHT22 setelah beberapa percobaan: %s", esp_err_to_name(err));

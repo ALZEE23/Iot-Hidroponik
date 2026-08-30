@@ -127,8 +127,13 @@ hidroponik-firmware/
 - [x] Implementasi sensor components (`sensor_ds18b20`, `sensor_dht22`, `sensor_ph`, `sensor_tds`)
 - [x] Implementasi `mqtt_client_app` & `firebase_client`
 - [x] Implementasi `local_webserver` untuk AP mode
-- [ ] Build & flash ke hardware asli buat verifikasi (belum di-compile — cek `README.md`)
+- [x] Build & flash ke hardware asli buat verifikasi — DHT22 & sensor pH/TDS (analog)
+      udah kebukti baca data beneran di board fisik. DS18B20 belum ketes (belum ada
+      unit fisiknya). WiFi STA/MQTT/Firebase belum ketes (kredensial belum diisi).
 - [ ] Kalibrasi fisik sensor pH pakai larutan buffer pH 4/7/10 (`PH_NEUTRAL_MV`/`PH_MV_PER_PH` di Kconfig)
+- [ ] Kalibrasi/verifikasi sensor TDS (nilai masih fluktuatif, kemungkinan besar cuma
+      karena probe belum dicelup ke larutan stabil, bukan bug)
+- [ ] Test end-to-end WiFi STA + MQTT (HiveMQ Cloud) + Firebase setelah kredensial diisi
 - [ ] Assign footprint & routing PCB di KiCad (belum lanjut dari sisi hardware)
 
 ## 5. Belum Diputuskan / Perlu Dicek

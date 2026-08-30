@@ -1,4 +1,5 @@
 #include "sensor_tds.h"
+#include "adc_shared.h"
 #include "esp_adc/adc_oneshot.h"
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
@@ -15,12 +16,9 @@ static adc_cali_handle_t s_cali_handle;
 
 esp_err_t sensor_tds_init(void)
 {
-    adc_oneshot_unit_init_cfg_t init_config = {
-        .unit_id = TDS_ADC_UNIT,
-    };
-    esp_err_t err = adc_oneshot_new_unit(&init_config, &s_adc_handle);
+    esp_err_t err = adc_shared_get_unit1(&s_adc_handle);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "gagal init ADC unit: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "gagal ambil ADC1 unit: %s", esp_err_to_name(err));
         return err;
     }
 

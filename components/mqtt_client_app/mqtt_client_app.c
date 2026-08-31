@@ -34,6 +34,11 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 esp_err_t mqtt_client_app_start(void)
 {
+    if (strlen(CONFIG_MQTT_BROKER_HOST) == 0) {
+        ESP_LOGI(TAG, "CONFIG_MQTT_BROKER_HOST belum diisi, skip start MQTT client");
+        return ESP_ERR_INVALID_STATE;
+    }
+
     char uri[128];
     snprintf(uri, sizeof(uri), "mqtts://%s:%d", CONFIG_MQTT_BROKER_HOST, CONFIG_MQTT_BROKER_PORT);
 

@@ -61,6 +61,7 @@ static esp_err_t api_sensors_get_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
     httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     esp_err_t err = httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
     free(json);
     return err;

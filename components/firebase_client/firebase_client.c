@@ -42,6 +42,11 @@ static esp_err_t put_json(const char *url, const char *json_payload)
 
 esp_err_t firebase_client_push(const char *json_payload, time_t ts)
 {
+    if (strlen(CONFIG_FIREBASE_DATABASE_HOST) == 0) {
+        ESP_LOGD(TAG, "CONFIG_FIREBASE_DATABASE_HOST belum diisi, skip push");
+        return ESP_ERR_INVALID_STATE;
+    }
+
     char url[256];
 
     snprintf(url, sizeof(url), "https://%s/%s/latest.json",

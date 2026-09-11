@@ -6,6 +6,7 @@ idf_component_register(SRCS "main.c"
                                   sensor_dht22
                                   sensor_ph
                                   sensor_tds
+                                  sensor_ultrasonic
                                   mqtt_client_app
                                   firebase_client
                                   local_webserver

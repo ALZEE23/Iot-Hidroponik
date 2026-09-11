@@ -11,6 +11,7 @@
 #include "sensor_dht22.h"
 #include "sensor_ph.h"
 #include "sensor_tds.h"
+#include "sensor_ultrasonic.h"
 #include "mqtt_client_app.h"
 #include "firebase_client.h"
 #include "local_webserver.h"
@@ -58,12 +59,15 @@ static void sensor_task(void *arg)
             ESP_LOGW(TAG, "gagal baca sensor TDS");
         }
 
+        // sensor ultrasonik dinonaktifkan sementara (hardware ECHO belum kedeteksi respons)
+
         reading.timestamp = time(NULL);
         sensor_hub_update(&reading);
 
-        ESP_LOGI(TAG, "reading: water=%.2fC air=%.2fC/%.1f%% ph=%.2f tds=%.1fppm sta=%s",
+        ESP_LOGI(TAG, "reading: water=%.2fC air=%.2fC/%.1f%% ph=%.2f tds=%.1fppm level=%.1fcm/%.0f%% sta=%s",
                  reading.water_temp_c, reading.air_temp_c, reading.air_humidity_pct,
-                 reading.ph, reading.tds_ppm, wifi_manager_is_sta_connected() ? "connected" : "disconnected");
+                 reading.ph, reading.tds_ppm, reading.water_level_cm, reading.water_level_pct,
+                 wifi_manager_is_sta_connected() ? "connected" : "disconnected");
 
         if (wifi_manager_is_sta_connected()) {
             char *json = sensor_hub_get_json();
@@ -104,6 +108,7 @@ void app_main(void)
     sensor_dht22_init((gpio_num_t) CONFIG_SENSOR_DHT22_GPIO);
     sensor_ph_init();
     sensor_tds_init();
+    // sensor_ultrasonic_init() dinonaktifkan sementara (hardware ECHO belum kedeteksi respons)
 
     // AP + local_webserver selalu aktif, MQTT jalan bareng begitu STA connect
     // (esp-mqtt auto-reconnect sendiri kalau STA belum/putus koneksi).

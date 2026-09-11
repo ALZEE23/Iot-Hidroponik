@@ -93,6 +93,25 @@ menu "Sensor Configuration"
         int "GPIO DHT22 (suhu & kelembaban udara)"
         default 5
 
+    config SENSOR_ULTRASONIC_TRIG_GPIO
+        int "GPIO TRIG HC-SR04 (level air)"
+        default 32
+
+    config SENSOR_ULTRASONIC_ECHO_GPIO
+        int "GPIO ECHO HC-SR04 (level air)"
+        default 33
+        help
+            Echo HC-SR04 keluar 5V, WAJIB lewat voltage divider (R4 1k + R5 2k)
+            sebelum masuk pin ini karena ESP32 cuma toleran 3.3V.
+
+    config WATER_TANK_EMPTY_DISTANCE_CM
+        int "Jarak sensor ke permukaan air pas tangki KOSONG (cm, WAJIB dikalibrasi fisik)"
+        default 40
+
+    config WATER_TANK_FULL_DISTANCE_CM
+        int "Jarak sensor ke permukaan air pas tangki PENUH (cm, WAJIB dikalibrasi fisik)"
+        default 5
+
     config SENSOR_READ_INTERVAL_SEC
         int "Interval baca semua sensor (detik)"
         default 10

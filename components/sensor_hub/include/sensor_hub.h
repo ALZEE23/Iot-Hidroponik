@@ -22,6 +22,10 @@ typedef struct {
     float tds_ppm;           // TDS module
     bool  tds_valid;
 
+    float water_level_cm;    // HC-SR04, jarak sensor ke permukaan air
+    float water_level_pct;   // HC-SR04, dikalibrasi ke 0-100% dari Kconfig
+    bool  water_level_valid;
+
     time_t timestamp;        // unix time (0 kalau belum SNTP sync)
 } sensor_reading_t;
 

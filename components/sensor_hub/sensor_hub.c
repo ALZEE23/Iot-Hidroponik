@@ -80,6 +80,14 @@ char *sensor_hub_get_json(void)
         cJSON_AddNullToObject(root, "tds_ppm");
     }
 
+    if (r.water_level_valid) {
+        cJSON_AddNumberToObject(root, "water_level_cm", r.water_level_cm);
+        cJSON_AddNumberToObject(root, "water_level_pct", r.water_level_pct);
+    } else {
+        cJSON_AddNullToObject(root, "water_level_cm");
+        cJSON_AddNullToObject(root, "water_level_pct");
+    }
+
     cJSON_AddNumberToObject(root, "timestamp", (double) r.timestamp);
 
     char *json = cJSON_PrintUnformatted(root);

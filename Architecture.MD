@@ -38,6 +38,7 @@ bukan modul mentah. Board ini sudah punya regulator 5V→3.3V built-in (AMS1117)
 | DHT22 | Suhu & kelembaban udara | 1-Wire custom | IO5 | Pull-up 10kΩ ke 3.3V |
 | pH Module (PH-4502C) | pH air nutrisi | Analog | IO36 (SENSOR_VP / ADC1_CH0) | Butuh 5V VCC, cek datasheet fisik |
 | TDS Sensor | Kepekatan nutrisi | Analog | IO39 (SENSOR_VN / ADC1_CH3) | Butuh 5V VCC |
+| HC-SR04 | Level air (jarak ke permukaan) | GPIO digital (trig/echo) | TRIG=IO32, ECHO=IO33 | VCC 5V. ECHO output 5V wajib lewat voltage divider (R4 1k + R5 2k) sebelum masuk IO33, karena ESP32 cuma toleran 3.3V |
 
 Strapping pins yang **dihindari**: IO0, IO2, IO12, IO15 (dipakai buat boot mode ESP32).
 
@@ -109,6 +110,7 @@ hidroponik-firmware/
     ├── sensor_dht22/
     ├── sensor_ph/              # pakai esp_adc oneshot (bukan driver/adc.h lama)
     ├── sensor_tds/             # pakai esp_adc oneshot
+    ├── sensor_ultrasonic/      # HC-SR04, bit-bang trig/echo buat level air
     ├── wifi_manager/           # STA dengan fallback otomatis ke AP mode
     ├── local_webserver/        # esp_http_server, aktif saat AP mode
     ├── mqtt_client_app/        # publish ke HiveMQ Cloud (TLS), aktif saat STA mode

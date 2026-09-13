@@ -14,12 +14,15 @@ menu "Hidroponik WiFi Configuration"
 
     config WIFI_STA_CONNECT_TIMEOUT_SEC
         int "Timeout tunggu STA connect pas boot (detik)"
-        default 15
+        default 10
         range 5 120
         help
-            Cuma nentuin berapa lama app_main() nunggu di boot sebelum lanjut init
-            komponen lain. STA tetap terus retry di background walau timeout ini
-            udah lewat -- begitu WiFi rumah kedeteksi, MQTT/Firebase otomatis aktif.
+            Cuma dipakai buat satu hal: berapa lama app_main() nunggu di boot
+            sebelum lanjut init komponen lain (dan buat nentuin log/return value
+            "STA berhasil connect pas boot" atau belum). STA sendiri nggak pernah
+            berhenti retry connect di background sama sekali -- kalau gagal/putus,
+            tetap terus dicoba lagi tiap beberapa detik selamanya (lihat
+            STA_RECONNECT_DELAY_MS di wifi_manager.c), nggak terpengaruh timeout ini.
 
     config WIFI_AP_SSID
         string "SSID AP (hotspot lokal, aktif terus)"
